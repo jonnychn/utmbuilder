@@ -43,6 +43,14 @@
             border-radius: 4px;
             white-space: pre-line;
         }
+        .inline-input {
+            display: flex;
+            align-items: center;
+        }
+        .inline-input select {
+            width: auto;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -51,7 +59,13 @@
 
         <h2>Build UTM URL</h2>
         <label for="baseUrl">Base URL</label>
-        <input type="text" id="baseUrl" placeholder="https://example.com">
+        <div class="inline-input">
+            <select id="protocol">
+                <option value="http://">http://</option>
+                <option value="https://" selected>https://</option>
+            </select>
+            <input type="text" id="baseUrl" placeholder="example.com">
+        </div>
 
         <label for="utmSource">UTM Source</label>
         <input type="text" id="utmSource" placeholder="e.g., google">
@@ -84,7 +98,10 @@
 
     <script>
         function generateUTM() {
+            const protocol = document.getElementById('protocol').value;
             const baseUrl = document.getElementById('baseUrl').value;
+            const fullUrl = protocol + baseUrl;
+
             const utmSource = document.getElementById('utmSource').value;
             const utmMedium = document.getElementById('utmMedium').value;
             const utmCampaign = document.getElementById('utmCampaign').value;
@@ -98,7 +115,7 @@
             if (utmTerm) params.append('utm_term', utmTerm);
             if (utmContent) params.append('utm_content', utmContent);
 
-            const generatedUrl = `${baseUrl}?${params.toString()}`;
+            const generatedUrl = `${fullUrl}?${params.toString()}`;
 
             document.getElementById('generatedUrl').textContent = generatedUrl;
         }
@@ -117,24 +134,32 @@
         }
 
         function extractUTM() {
-            const urlToExtract = document.getElementById('urlToExtract').value;
-            const url = new URL(urlToExtract);
-            const params = url.searchParams;
+            let urlToExtract = document.getElementById('urlToExtract').value;
+            if (!urlToExtract.startsWith('http://') && !urlToExtract.startsWith('https://')) {
+                urlToExtract = 'https://' + urlToExtract;
+            }
 
-            const utmValues = {
-                utm_source: params.get('utm_source'),
-                utm_medium: params.get('utm_medium'),
-                utm_campaign: params.get('utm_campaign'),
-                utm_term: params.get('utm_term'),
-                utm_content: params.get('utm_content'),
-            };
+            try {
+                const url = new URL(urlToExtract);
+                const params = url.searchParams;
 
-            const extractedUtms = Object.entries(utmValues)
-                .filter(([key, value]) => value)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join('\n\n');
+                const utmValues = {
+                    utm_source: params.get('utm_source'),
+                    utm_medium: params.get('utm_medium'),
+                    utm_campaign: params.get('utm_campaign'),
+                    utm_term: params.get('utm_term'),
+                    utm_content: params.get('utm_content'),
+                };
 
-            document.getElementById('extractedUtms').textContent = extractedUtms || 'No UTM parameters found.';
+                const extractedUtms = Object.entries(utmValues)
+                    .filter(([key, value]) => value)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join('\n\n');
+
+                document.getElementById('extractedUtms').textContent = extractedUtms || 'No UTM parameters found.';
+            } catch (error) {
+                document.getElementById('extractedUtms').textContent = 'Invalid URL.';
+            }
         }
     </script>
 </body>
