@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTM Builder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>UTM Builder</h1>
+
+        <h2>Build UTM URL</h2>
+        <label for="baseUrl">Base URL</label>
+        <input type="text" id="baseUrl" placeholder="https://example.com">
+
+        <label for="utmSource">UTM Source</label>
+        <input type="text" id="utmSource" placeholder="e.g., google">
+
+        <label for="utmMedium">UTM Medium</label>
+        <input type="text" id="utmMedium" placeholder="e.g., cpc">
+
+        <label for="utmCampaign">UTM Campaign</label>
+        <input type="text" id="utmCampaign" placeholder="e.g., spring_sale">
+
+        <label for="utmTerm">UTM Term</label>
+        <input type="text" id="utmTerm" placeholder="e.g., running+shoes">
+
+        <label for="utmContent">UTM Content</label>
+        <input type="text" id="utmContent" placeholder="e.g., banner_ad">
+
+        <button onclick="generateUTM()">Generate URL</button>
+
+        <div class="output" id="generatedUrl">Your UTM URL will appear here.</div>
+
+        <h2>Extract UTM Values</h2>
+        <label for="urlToExtract">URL with UTMs</label>
+        <textarea id="urlToExtract" placeholder="Paste your URL here"></textarea>
+
+        <button onclick="extractUTM()">Extract UTMs</button>
+
+        <div class="output" id="extractedUtms">UTM values will appear here.</div>
+    </div>
+
+    <script>
+        function generateUTM() {
+            const baseUrl = document.getElementById('baseUrl').value;
+            const utmSource = document.getElementById('utmSource').value;
+            const utmMedium = document.getElementById('utmMedium').value;
+            const utmCampaign = document.getElementById('utmCampaign').value;
+            const utmTerm = document.getElementById('utmTerm').value;
+            const utmContent = document.getElementById('utmContent').value;
+
+            const params = new URLSearchParams();
+            if (utmSource) params.append('utm_source', utmSource);
+            if (utmMedium) params.append('utm_medium', utmMedium);
+            if (utmCampaign) params.append('utm_campaign', utmCampaign);
+            if (utmTerm) params.append('utm_term', utmTerm);
+            if (utmContent) params.append('utm_content', utmContent);
+
+            const generatedUrl = `${baseUrl}?${params.toString()}`;
+
+            document.getElementById('generatedUrl').textContent = generatedUrl;
+        }
+
+        function extractUTM() {
+            const urlToExtract = document.getElementById('urlToExtract').value;
+            const url = new URL(urlToExtract);
+            const params = url.searchParams;
+
+            const utmValues = {
+                utm_source: params.get('utm_source'),
+                utm_medium: params.get('utm_medium'),
+                utm_campaign: params.get('utm_campaign'),
+                utm_term: params.get('utm_term'),
+                utm_content: params.get('utm_content'),
+            };
+
+            const extractedUtms = Object.entries(utmValues)
+                .filter(([key, value]) => value)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n');
+
+            document.getElementById('extractedUtms').textContent = extractedUtms || 'No UTM parameters found.';
+        }
+    </script>
+</body>
+</html>
