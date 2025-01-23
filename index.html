@@ -41,6 +41,7 @@
             background-color: #f9f9f9;
             border: 1px solid #ccc;
             border-radius: 4px;
+            white-space: pre-line;
         }
     </style>
 </head>
@@ -68,6 +69,7 @@
         <input type="text" id="utmContent" placeholder="e.g., banner_ad">
 
         <button onclick="generateUTM()">Generate URL</button>
+        <button onclick="copyToClipboard()">Copy URL</button>
 
         <div class="output" id="generatedUrl">Your UTM URL will appear here.</div>
 
@@ -101,6 +103,19 @@
             document.getElementById('generatedUrl').textContent = generatedUrl;
         }
 
+        function copyToClipboard() {
+            const generatedUrl = document.getElementById('generatedUrl').textContent;
+            if (generatedUrl !== 'Your UTM URL will appear here.') {
+                navigator.clipboard.writeText(generatedUrl).then(() => {
+                    alert('URL copied to clipboard!');
+                }).catch(err => {
+                    alert('Failed to copy URL.');
+                });
+            } else {
+                alert('No URL to copy!');
+            }
+        }
+
         function extractUTM() {
             const urlToExtract = document.getElementById('urlToExtract').value;
             const url = new URL(urlToExtract);
@@ -117,7 +132,7 @@
             const extractedUtms = Object.entries(utmValues)
                 .filter(([key, value]) => value)
                 .map(([key, value]) => `${key}: ${value}`)
-                .join('\n');
+                .join('\n\n');
 
             document.getElementById('extractedUtms').textContent = extractedUtms || 'No UTM parameters found.';
         }
